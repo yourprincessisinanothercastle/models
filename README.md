@@ -29,7 +29,7 @@ generating a world means creating a height- and a temperaturemap.
 out of this we create a biome map (see constants.py for modifying)
 
 
-![biomes](samples/test_0_0.pgm)
-![height](samples/test_height_0_0.pgm)
-![temperature](samples/test_temp_0_0.pgm)
+![biomes](samples/test_0_0.png)
+![height](samples/test_height_0_0.png)
+![temperature](samples/test_temp_0_0.png)
 
