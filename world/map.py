@@ -21,7 +21,7 @@ import argparse
 
 
 class Map:
-    def __init__(self, name, seed=None, tilesize=256, octaves=8, granularity=256):
+    def __init__(self, name, seed=None, tilesize=256, octaves=8, granularity=256, savetiles=False):
         self.octaves = octaves
         self.freq = 16.0 * self.octaves  # size of the blobs
         self.seed = seed
@@ -31,6 +31,7 @@ class Map:
         self.granularity = granularity
 
         self.tiles = {}  # store tiles at runtime
+        self.savetiles = savetiles
 
     def get_tile(self, tile_x, tile_y):
         """
@@ -42,7 +43,7 @@ class Map:
         """
         tile = self.tiles.get((tile_x, tile_y), False)
         if not tile:
-            self.tiles[(tile_x, tile_y)] = self._make_tile(tile_x, tile_y)
+            self.tiles[(tile_x, tile_y)] = self._make_tile(tile_x, tile_y, save=self.savetiles)
         return self.tiles[(tile_x, tile_y)]
 
     def _make_tile(self, tile_x, tile_y, save=False):

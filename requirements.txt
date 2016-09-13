@@ -1,0 +1,9 @@
+blessings==1.6
+bpython==0.15
+curtsies==0.2.9
+greenlet==0.4.10
+noise==1.2.2
+Pygments==2.1.3
+requests==2.11.1
+six==1.10.0
+wcwidth==0.1.7
