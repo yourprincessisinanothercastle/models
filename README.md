@@ -2,7 +2,7 @@
 
 generate a worldmap which lives in in ram while the worldmap process is running.
 
-has also some image output which should be nice if you are human.
+has also some image output (which should be nice if you are human).
 
 
 
@@ -30,6 +30,16 @@ out of this we create a biome map (see constants.py for modifying)
 
 
 ![biomes](samples/test_0_0.png)
+
+heightmap:
+
 ![height](samples/test_height_0_0.png)
+
+temperaturemap:
+
 ![temperature](samples/test_temp_0_0.png)
+
+
+
+
 
