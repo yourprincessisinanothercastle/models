@@ -40,6 +40,14 @@ temperaturemap:
 ![temperature](samples/test_temp_0_0.png)
 
 
+## usage as module
 
+```
+>>> from world.world import World
+>>> w = World("testworld", 234, 128, 3, savetiles=False)  # name, seed, tilesize, octaves ("blobsize")
+>>> w.get_coord(0,8)
+{'biome': 'temperate_desert', 'height': 3, 'temperature': 1}
+```
 
-
+tiles, once created, are stored in ram. this may need work later, as worlds become bigger.
+also, depending on the client, we may need to store corresponding images to show as a worldmap.
