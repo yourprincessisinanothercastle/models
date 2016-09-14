@@ -1,12 +1,12 @@
 # http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/#biomes
-BIOMES = [[0 for x in range(6)] for y in range(5)]  # will have coords: height, moisture
+BIOMES = [[0 for x in range(6)] for y in range(5)]  # will have coords: height, temp
 
-BIOMES[0][0] = "water"  # dry, low
-BIOMES[0][1] = "water"
+BIOMES[0][0] = "ice"  # dry, low
+BIOMES[0][1] = "ice"
 BIOMES[0][2] = "water"
-BIOMES[0][3] = "ice"
-BIOMES[0][4] = "ice"
-BIOMES[0][5] = "ice"
+BIOMES[0][3] = "water"
+BIOMES[0][4] = "water"
+BIOMES[0][5] = "water"
 
 BIOMES[1][0] = "subtropical_desert"  # dry, low
 BIOMES[1][1] = "grassland"
@@ -52,6 +52,6 @@ COLORS = {
     "temperate desert":             "228 232 202",
     "tropical_rainforest":          "156 187 169",
     "tropical_seasonal_forest":     "169 204 164",
-    "ice":                          "0   0   128",
-    "water":                        "0   0   255"
+    "ice":                          "30  250 250",
+    "water":                        "0   100 250"
 }

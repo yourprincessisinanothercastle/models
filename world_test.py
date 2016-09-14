@@ -20,7 +20,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    w = World(args.name, args.seed, tilesize=128, octaves=5, savetiles=args.savetiles)
+    w = World(args.name, args.seed, tilesize=512, octaves=5, savetiles=args.savetiles)
 
-    print(w.get_coord(args.x, args.y))
-    #w.save_biome_map(args.x, args.y)
+    #print(w.get_coord(args.x, args.y))
+    w.save_biome_map(args.x, args.y)

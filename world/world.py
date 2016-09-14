@@ -10,7 +10,7 @@ from .constants import BIOMES, COLORS
 class World():
     def __init__(self, name, seed, tilesize=256, octaves=3, savetiles=False):
         self.heightmap = Map(name + "_height", seed=seed, tilesize=tilesize, octaves=octaves, granularity=5, savetiles=savetiles)
-        self.tempmap = Map(name + "_temp", seed=seed + 1, tilesize=tilesize, octaves=octaves * 2,
+        self.tempmap = Map(name + "_temp", seed=seed + 1, tilesize=tilesize, octaves=octaves*2,
                            granularity=6, savetiles=savetiles)  # octaves * 2 = bigger temperature blobs
 
         self.tilesize = tilesize
