@@ -1,7 +1,7 @@
 from mongoengine import StringField, Document, IntField
 
 from models.tile import Tile
-
+from collections import OrderedDict
 
 class Map(Document):
     name = StringField(required=True, unique=True)
@@ -18,6 +18,9 @@ class Map(Document):
         self.octaves = octaves
         self.steps = steps
 
+        self.tilecache = OrderedDict()
+        self.cachesize = 1000
+
     def get_tile(self, tile_x, tile_y):
         """
         get a created tile or create a new one
@@ -26,9 +29,17 @@ class Map(Document):
         :param tile_y:
         :return:
         """
+        # check if its cached
+        tile = self.tilecache.get((tile_x, tile_y), False)
+        if tile:
+            return tile
+
         tile = Tile.objects.filter(name=self.name, x=tile_x, y=tile_y).first()
         if not tile:
             tile = self._make_tile(tile_x, tile_y)
+        self.tilecache[(tile_x, tile_y)] = tile
+        while len(self.tilecache) > self.cachesize:
+            self.tilecache.popitem(last=False)
         return tile
 
     def _make_tile(self, tile_x, tile_y, save=False):

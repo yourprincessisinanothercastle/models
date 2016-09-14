@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument("--savetiles", action="store_true", default=False)
     args = parser.parse_args()
 
-    tilesize = 64
+    tilesize = 128
 
     w = World.objects.filter(name=args.name).first()
     if not w:
@@ -31,9 +31,9 @@ if __name__ == "__main__":
     c = 0
     t_before = time.time()
 
-    for x in range(10):
-        for y in range(10):
-            print(w.get_coord(x*tilesize, y*tilesize))
+    for x in range(100):
+        for y in range(100):
+            print(w.get_coord(x*int(tilesize/2), y*int(tilesize/2)))
             c+=1
 
     print('created %s tiles (%s ^2) in %s seconds' % (c, tilesize, time.time()-t_before))
