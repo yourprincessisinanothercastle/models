@@ -32,7 +32,7 @@ BIOMES[3][5] = "taiga"
 BIOMES[4][0] = "scorched"
 BIOMES[4][1] = "bare"
 BIOMES[4][2] = "tundra"
-BIOMES[4][3] = "snow"
+BIOMES[4][3] = "tundra"
 BIOMES[4][4] = "snow"
 BIOMES[4][5] = "snow"
 
@@ -55,3 +55,7 @@ COLORS = {
     "ice":                          "30  250 250",
     "water":                        "0   100 250"
 }
+
+BASE_FREQUENCE = 32.0
+
+TILESIZE = 32

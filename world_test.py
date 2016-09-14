@@ -8,33 +8,54 @@ they are just to see what basically happens.
 
 
 import argparse
-import models
+from models import db
 from models.world import World
 import time
 
+from models.constants import TILESIZE
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("name")
-    parser.add_argument("seed", type=int)
-    parser.add_argument("x", type=int)
-    parser.add_argument("y", type=int)
-    parser.add_argument("--savetiles", action="store_true", default=False)
+    parser.add_argument("--dropdb", action="store_true", default=False)
     args = parser.parse_args()
 
-    tilesize = 128
+    tilesize = TILESIZE
 
-    w = World.objects.filter(name=args.name).first()
-    if not w:
-        w = World(args.name, args.seed, tilesize=tilesize, octaves=5)
-        w.save()
+    if args.dropdb:
+        db.drop_database('worldmap')
+        exit(0)
 
     c = 0
     t_before = time.time()
+    seed = 0
+    coord = {}
+    stats = {}
+    while coord.get('biome', '') != ('ice' or 'water'):
 
-    for x in range(100):
-        for y in range(100):
-            print(w.get_coord(x*int(tilesize/2), y*int(tilesize/2)))
-            c+=1
+        w = World.objects.filter(name=str(seed)).first()
+        if not w:
+            #print(seed)
+            w = World(str(seed), seed, tilesize=tilesize, octaves=5)
+            w.save()
+        coord = w.get_coord(0, 0)
+        seed += 1
+        if not stats.get(coord['biome'], False):
+            stats[coord['biome']] = 0
+        stats[coord['biome']] += 1
+        w.save_biome_map(0, 0)
+        if seed % 100 == 0:
+            print('100 worlds later... (%s)' % seed)
+        if seed % 100 == 0:
+            print(stats)
+
+    print('seed: %s' % seed)
+    print(coord)
+
+
+    #for x in range(100):
+    #    for y in range(100):
+    #        print(w.get_coord(x, y))
+    #        c+=1
 
     print('created %s tiles (%s ^2) in %s seconds' % (c, tilesize, time.time()-t_before))
     #w.save_biome_map(args.x, args.y)

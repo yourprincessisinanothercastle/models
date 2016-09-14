@@ -3,6 +3,8 @@ from noise.perlin import SimplexNoise
 
 import random
 
+from .constants import BASE_FREQUENCE
+
 
 class Tile(Document):
     tilesize = IntField()
@@ -43,7 +45,7 @@ class Tile(Document):
 
         self.r = random.Random(self.seed)
 
-        self.freq = 16.0 * self.octaves  # size of the blobs
+        self.freq = BASE_FREQUENCE * self.octaves  # size of the blobs
 
         self.x = x
         self.y = y

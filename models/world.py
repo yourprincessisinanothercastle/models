@@ -27,7 +27,7 @@ class World(Document):
     def create_maps(self):
         self.heightmap = Map(self.name + "_height", seed=self.seed, tilesize=self.tilesize, octaves=self.octaves,
                              steps=5).save()
-        self.tempmap = Map(self.name + "_temp", seed=self.seed + 1, tilesize=self.tilesize, octaves=self.octaves * 2,
+        self.tempmap = Map(self.name + "_temp", seed=self.seed + 1, tilesize=self.tilesize, octaves=self.octaves * 3,
                            steps=6).save()
 
     def get_coord(self, x, y):
