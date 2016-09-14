@@ -1,32 +1,36 @@
 # worldmap generator
 
-generate a worldmap which lives in in ram while the worldmap process is running.
+## installation
 
-has also some image output (which should be nice if you are human).
+1. start a mongodb
 
 
+    docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no --name mongodb tutum/mongodb
 
-## howto (tl;dr)
+2. setup python stuff
 
+    
+    virtualenv -p python3 env
+    source env/bin/activate
+    pip install -r requirements.txt
+    
+3. use it.
+
+the whose thing is intended to be used from python.
 
 ```
-    > python world_test.py --help
-    usage: world_test.py [-h] [--savetiles] name seed x y
-    
-    positional arguments:
-      name
-      seed
-      x
-      y
-    
-    optional arguments:
-      -h, --help   show this help message and exit
-      --savetiles
-```
+>>> from models.world import World
+>>> w = World("testworld", 321, 64, 3)
+>>> w.get_coord(0,0)
+{'biome': 'temperate_deciduous_forest', 'height': 2, 'temperature': 3}
+``` 
 
+to get some image output, you can the use w.save_biome_map(0,0) to get an image for the tile (0, 0) saved to ./worldname_0_0.pgm
 
-generating a world means creating a height- and a temperaturemap.
-out of this we create a biome map (see constants.py for modifying)
+## what it does
+
+generating a world means creating a height- and a temperaturemap. we use the noise package to create perlin noise for this.
+out of height and temp we create a biome map (see constants.py for modifying)
 
 
 ![biomes](samples/test_0_0.png)
@@ -39,15 +43,3 @@ temperaturemap:
 
 ![temperature](samples/test_temp_0_0.png)
 
-
-## usage as module
-
-```
->>> from world.world import World
->>> w = World("testworld", 234, 128, 3, savetiles=False)  # name, seed, tilesize, octaves ("blobsize")
->>> w.get_coord(0,8)
-{'biome': 'temperate_desert', 'height': 3, 'temperature': 1}
-```
-
-tiles, once created, are stored in ram. this may need work later, as worlds become bigger.
-also, depending on the client, we may need to store corresponding images to show as a worldmap.

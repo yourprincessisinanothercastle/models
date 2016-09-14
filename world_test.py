@@ -8,7 +8,9 @@ they are just to see what basically happens.
 
 
 import argparse
-from world.world import World
+import models
+from models.world import World
+import time
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -19,8 +21,20 @@ if __name__ == "__main__":
     parser.add_argument("--savetiles", action="store_true", default=False)
     args = parser.parse_args()
 
+    tilesize = 64
 
-    w = World(args.name, args.seed, tilesize=512, octaves=5, savetiles=args.savetiles)
+    w = World.objects.filter(name=args.name).first()
+    if not w:
+        w = World(args.name, args.seed, tilesize=tilesize, octaves=5)
+        w.save()
 
-    #print(w.get_coord(args.x, args.y))
-    w.save_biome_map(args.x, args.y)
+    c = 0
+    t_before = time.time()
+
+    for x in range(10):
+        for y in range(10):
+            print(w.get_coord(x*tilesize, y*tilesize))
+            c+=1
+
+    print('created %s tiles (%s ^2) in %s seconds' % (c, tilesize, time.time()-t_before))
+    #w.save_biome_map(args.x, args.y)
