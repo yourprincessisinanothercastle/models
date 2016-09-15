@@ -32,11 +32,7 @@ if __name__ == "__main__":
     stats = {}
     while coord.get('biome', '') != ('ice' or 'water'):
 
-        w = World.objects.filter(name=str(seed)).first()
-        if not w:
-            #print(seed)
-            w = World(str(seed), seed, tilesize=tilesize, octaves=5)
-            w.save()
+
         coord = w.get_coord(0, 0)
         seed += 1
         if not stats.get(coord['biome'], False):

@@ -15,7 +15,7 @@ def spawn_shell():
     except ImportError:
         pass
 
-def plot_voronoi(coords_in, colors, filename):
+def plot_voronoi(coords_in, colors=None, filename=None):
     print('plotting...')
     coords = np.array(coords_in)
     vor = Voronoi(coords)
@@ -25,16 +25,17 @@ def plot_voronoi(coords_in, colors, filename):
     # colorize
     #spawn_shell()
 
-    for x in range(len(vor.point_region)):
-        region_nr = vor.point_region[x]
-        color_str = colors[x]
-        region = vor.regions[region_nr]
-        if not -1 in region:
-            polygon = [vor.vertices[i] for i in region]
+    if colors:
+        for x in range(len(vor.point_region)):
+            region_nr = vor.point_region[x]
+            color_str = colors[x]
+            region = vor.regions[region_nr]
+            if not -1 in region:
+                polygon = [vor.vertices[i] for i in region]
 
-            c = '%0.2X' % (color_str * int(255/6))
-            print(c)
-            plt.fill(*zip(*polygon), color='#' + c *3)
+                c = '%0.2X' % (color_str * int(255/6))
+                print(c)
+                plt.fill(*zip(*polygon), color='#' + c *3)
 
 
     #for region in vor.regions:
@@ -52,18 +53,5 @@ def plot_delaunay(coords, filename):
     delaunay_plot_2d(delaunay)
 
     plt.savefig(filename)
-
-# get neighbors of 1st point in the list
-def get_neighbors(index):
-    coords = np.random.rand(200, 2)
-    d = Delaunay(coords)
-
-    neighbor_indicies = set()
-    for x in d.vertices:
-        if index in x:
-            for element in x:
-                if element != index:
-                    neighbor_indicies.add(element)
-    return [coords[n] for n in neighbor_indicies]
 
 

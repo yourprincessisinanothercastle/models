@@ -30,34 +30,16 @@ class World(Document):
         self.tempmap = Map(self.name + "_temp", seed=self.seed + 1, tilesize=self.tilesize, octaves=self.octaves * 3,
                            steps=6).save()
 
-    def get_coord(self, px_x, px_y):
-        """
-        return the stats for the coord at (x, y)
-        generates the tile if needed
+    def get_temperature(self, px_x, px_y):
+        return self.tempmap.get_pixel(px_x, px_y)
 
-        :param px_x:
-        :param px_y:
-        :return:
-        """
-        temp = self.tempmap.get_pixel(px_x, px_y)
-        height = self.heightmap.get_pixel(px_x, px_y)
+    def get_height(self, px_x, px_y):
+        return self.heightmap.get_pixel(px_x, px_y)
 
-        map_x, map_y = self.get_coord_on_map(px_x, px_y)
-
-        return {"temperature": temp,
-                "height": height,
-                "biome": BIOMES[height][temp],
-                "coord_on_map": (map_x, map_y)}
-
-    def get_coord_on_map(self, px_x, px_y):
-        factor = 20
-        r = random.Random(self.seed + 10*px_x + px_y)
-        x = px_x * factor + r.randint(0, factor)
-        if px_y % 1 == 0:
-            y = px_y * factor + r.randint(0, factor)
-        else:
-            y = px_y * factor + factor/2 + r.randint(0, factor)
-        return x, y
+    def get_biome(self, px_x, px_y):
+        temp = self.get_temperature(px_x, px_y)
+        height = self.get_height(px_x, px_y)
+        return BIOMES[height][temp]
 
     def save_biome_map(self, tile_x, tile_y):
         h = self.heightmap.get_tile(tile_x, tile_y).data
