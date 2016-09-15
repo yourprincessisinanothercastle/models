@@ -149,6 +149,6 @@ class VoronoiWorld:
             "neighbors": self.get_neighbors(x, y),
             "biome": self.world_db.get_biome(x, y),
             "height": self.world_db.get_height(x, y),
-            "temperature": self.world_db.get_biome(x, y),
+            "temperature": self.world_db.get_temperature(x, y),
             "position_on_map": list(self.get_coord_on_voronoi(x, y))
         })
