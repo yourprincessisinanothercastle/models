@@ -1,6 +1,6 @@
 from mongoengine import StringField, Document, IntField, ReferenceField
 from .constants import COLORS, BIOMES
-
+import random
 from models.map import Map
 
 
@@ -30,21 +30,34 @@ class World(Document):
         self.tempmap = Map(self.name + "_temp", seed=self.seed + 1, tilesize=self.tilesize, octaves=self.octaves * 3,
                            steps=6).save()
 
-    def get_coord(self, x, y):
+    def get_coord(self, px_x, px_y):
         """
         return the stats for the coord at (x, y)
         generates the tile if needed
 
-        :param x:
-        :param y:
+        :param px_x:
+        :param px_y:
         :return:
         """
-        temp = self.tempmap.get_pixel(x, y)
-        height = self.heightmap.get_pixel(x, y)
+        temp = self.tempmap.get_pixel(px_x, px_y)
+        height = self.heightmap.get_pixel(px_x, px_y)
+
+        map_x, map_y = self.get_coord_on_map(px_x, px_y)
 
         return {"temperature": temp,
                 "height": height,
-                "biome": BIOMES[height][temp]}
+                "biome": BIOMES[height][temp],
+                "coord_on_map": (map_x, map_y)}
+
+    def get_coord_on_map(self, px_x, px_y):
+        factor = 20
+        r = random.Random(self.seed + 10*px_x + px_y)
+        x = px_x * factor + r.randint(0, factor)
+        if px_y % 1 == 0:
+            y = px_y * factor + r.randint(0, factor)
+        else:
+            y = px_y * factor + factor/2 + r.randint(0, factor)
+        return x, y
 
     def save_biome_map(self, tile_x, tile_y):
         h = self.heightmap.get_tile(tile_x, tile_y).data

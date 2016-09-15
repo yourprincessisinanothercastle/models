@@ -56,6 +56,6 @@ COLORS = {
     "water":                        "0   100 250"
 }
 
-BASE_FREQUENCE = 32.0
+BASE_FREQUENCE = 2.0
 
-TILESIZE = 32
+TILESIZE = 16

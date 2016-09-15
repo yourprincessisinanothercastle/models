@@ -3,6 +3,7 @@ from mongoengine import StringField, Document, IntField
 from models.tile import Tile
 from collections import OrderedDict
 
+
 class Map(Document):
     name = StringField(required=True, unique=True)
     seed = IntField()
@@ -44,6 +45,7 @@ class Map(Document):
 
     def _make_tile(self, tile_x, tile_y, save=False):
         t = Tile(self.name, self.seed, self.tilesize, self.octaves, self.steps, tile_x, tile_y)
+        # save_as_pgm(tile_x, tile_y)
         t.save()
         return t
 
@@ -65,10 +67,13 @@ class Map(Document):
         tile = self.get_tile(tile_x, tile_y)
         return tile.get_pixel(x, y)
 
-
-def save_as_pgm(name, vals, tile_x, tile_y, tilesize, steps):
-    with open("%s_%s_%s.pgm" % (name, tile_x, tile_y), 'wt') as f:
-        f.write('P2\n')
-        f.write('%s %s\n' % (tilesize, tilesize))  # width, height
-        f.write('255\n')  # max greyval
-        f.write('\n'.join(str(int(val / steps * 255)) for val in vals) + '\n')
+    def save_as_pgm(self, tile_x, tile_y):
+        name = self.name
+        vals = self.get_tile(tile_x, tile_y).data
+        tilesize = self.tilesize
+        steps = self.steps
+        with open("%s_%s_%s.pgm" % (name, tile_x, tile_y), 'wt') as f:
+            f.write('P2\n')
+            f.write('%s %s\n' % (tilesize, tilesize))  # width, height
+            f.write('255\n')  # max greyval
+            f.write('\n'.join(str(int(val / steps * 255)) for val in vals) + '\n')
