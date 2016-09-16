@@ -50,15 +50,15 @@ world creation consists of two layers:
     - calculate neighbors for the created fields
 
 
-![biomes](samples/test_0_0.png)
+![biomes](samples/test_0_0.png =256x)
 
 heightmap:
 
-![height](samples/test_height_0_0.png)
+![height](samples/test_height_0_0.png =256x)
 
 temperaturemap:
 
-![temperature](samples/test_temp_0_0.png)
+![temperature](samples/test_temp_0_0.png =256x)
 
 created voronoi (regions):
 
