@@ -29,11 +29,11 @@ def create_world(name, seed):
 class VoronoiWorld:
     def __init__(self, name, seed=None):
         w = get_world(name)
-        #print(w)
+        # print(w)
         if not w:
             if not seed:
                 seed = random.randint(0, 9999)
-                #print('creating new world %s with seed %s' % (name, seed))
+                # print('creating new world %s with seed %s' % (name, seed))
             w = create_world(name, seed)
 
         self.name = name
@@ -152,3 +152,84 @@ class VoronoiWorld:
             "temperature": self.world_db.get_temperature(x, y),
             "position_on_map": list(self.get_coord_on_voronoi(x, y))
         })
+
+    def _plot_voronoi(self, tile_x, tile_y, filename=None):
+        """
+        debug output only
+
+        :param coords_in:
+        :param colors:
+        :param filename:
+        :return:
+        """
+        from scipy.spatial import Delaunay, Voronoi, voronoi_plot_2d, delaunay_plot_2d
+        import matplotlib.pyplot as plt
+
+        coords = []
+        colors = []
+
+        # convert coords to voronoi coords, get height
+        s = self.world_db.tilesize
+        for x in range(s):
+            for y in range(s):
+                coords.append(
+                    self.get_coord_on_voronoi(
+                        (tile_x * s) + x, (tile_y * s) + y))
+                colors.append(
+                    self.world_db.heightmap.get_pixel((tile_x * s) + x, (tile_y * s) + y))
+
+        # create and plot the voronoi
+        vor = Voronoi(coords)
+        # plot
+        voronoi_plot_2d(vor)
+
+        # colorize
+        # spawn_shell()
+
+        if colors:
+            for x in range(len(vor.point_region)):
+                region_nr = vor.point_region[x]
+                color_str = colors[x]
+                region = vor.regions[region_nr]
+                if not -1 in region:
+                    polygon = [vor.vertices[i] for i in region]
+
+                    c = '%0.2X' % (color_str * int(255 / 6))
+                    plt.fill(*zip(*polygon), color='#' + c * 3)
+
+        # for region in vor.regions:
+        #    print(region)
+        #    if not -1 in region:
+        #        polygon = [vor.vertices[i] for i in region]
+        #        plt.fill(*zip(*polygon))
+        plt.savefig('%s_voronoi_%s_%s.png' % (self.name, tile_x, tile_y))
+
+    def _plot_delaunay(self, tile_x, tile_y):
+        """
+        debug output only
+
+        :param coords:
+        :param filename:
+        :return:
+        """
+        from scipy.spatial import Delaunay, Voronoi, voronoi_plot_2d, delaunay_plot_2d
+        import matplotlib.pyplot as plt
+
+        coords = []
+
+        # convert coords to voronoi coords, get height
+        s = self.world_db.tilesize
+        for x in range(s):
+            for y in range(s):
+                coords.append(
+                    self.get_coord_on_voronoi(
+                        (tile_x * s) + x, (tile_y * s) + y))
+
+
+        print('plotting...')
+        coords = np.array(coords)
+        delaunay = Delaunay(coords)
+        # plot
+        delaunay_plot_2d(delaunay)
+
+        plt.savefig('%s_delaunay_%s_%s.png' % (self.name, tile_x, tile_y))
