@@ -146,12 +146,27 @@ class VoronoiWorld:
     def get_point_data(self, x, y):
         return json.dumps({
             "shape": list(self.get_shape(x, y)),
+            "shape_size": self.get_shapesize(x, y),
             "neighbors": self.get_neighbors(x, y),
             "biome": self.world_db.get_biome(x, y),
             "height": self.world_db.get_height(x, y),
             "temperature": self.world_db.get_temperature(x, y),
             "position_on_map": list(self.get_coord_on_voronoi(x, y))
         })
+
+    def get_shapesize(self, x_on_tilemap, y_on_tilemap):
+        def area(p):
+            return 0.5 * abs(sum(x0*y1 - x1*y0
+                                 for ((x0, y0), (x1, y1)) in segments(p)))
+
+        def segments(p):
+            return zip(p, p[1:] + [p[0]])
+
+        x = x_on_tilemap
+        y = y_on_tilemap
+        shape = self.get_shape(x, y)
+        return area(shape)
+
 
     def _plot_voronoi(self, tile_x, tile_y, filename=None):
         """
