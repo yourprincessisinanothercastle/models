@@ -38,7 +38,7 @@ if __name__ == "__main__":
         if not stats.get(coord['biome'], False):
             stats[coord['biome']] = 0
         stats[coord['biome']] += 1
-        w.save_biome_map(0, 0)
+        w._save_biome_map(0, 0)
         if seed % 100 == 0:
             print('100 worlds later... (%s)' % seed)
         if seed % 100 == 0:

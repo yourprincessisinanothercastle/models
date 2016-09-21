@@ -1,7 +1,8 @@
-from mongoengine import StringField, Document, IntField, ReferenceField
+from mongoengine import StringField, Document, IntField, ReferenceField, ListField
 from .constants import COLORS, BIOMES
 import random
 from models.map import Map
+from models.voronoipoint import VoronoiPoint
 
 
 class World(Document):
@@ -13,6 +14,8 @@ class World(Document):
     heightmap = ReferenceField(Map)
     tempmap = ReferenceField(Map)
 
+    voronoi_points = ListField(ReferenceField(VoronoiPoint))
+
     def __init__(self, name, seed, tilesize, octaves, *args, **kwargs):
         Document.__init__(self, *args, **kwargs)
 
@@ -22,18 +25,32 @@ class World(Document):
         self.octaves = octaves
 
         if not self.heightmap and not self.tempmap:
-            self.create_maps()
+            self._create_maps()
 
-    def create_maps(self):
+    def _create_maps(self):
         self.heightmap = Map(self.name + "_height", seed=self.seed, tilesize=self.tilesize, octaves=self.octaves,
                              steps=5).save()
         self.tempmap = Map(self.name + "_temp", seed=self.seed + 1, tilesize=self.tilesize, octaves=self.octaves * 3,
                            steps=6).save()
 
     def get_temperature(self, px_x, px_y):
+        """
+        get temperature for a pixel (coords on tilemap)
+
+        :param px_x:
+        :param px_y:
+        :return:
+        """
         return self.tempmap.get_pixel(px_x, px_y)
 
     def get_height(self, px_x, px_y):
+        """
+        get height of a pixel (coords on tilemap)
+
+        :param px_x:
+        :param px_y:
+        :return:
+        """
         return self.heightmap.get_pixel(px_x, px_y)
 
     def get_biome(self, px_x, px_y):
@@ -41,7 +58,7 @@ class World(Document):
         height = self.get_height(px_x, px_y)
         return BIOMES[height][temp]
 
-    def save_biome_map(self, tile_x, tile_y):
+    def _save_biome_map(self, tile_x, tile_y):
         h = self.heightmap.get_tile(tile_x, tile_y).data
         t = self.tempmap.get_tile(tile_x, tile_y).data
 
@@ -67,9 +84,9 @@ class World(Document):
             print(" %s: %s" % (k, biome_stats[k]))
         save_biome_as_ppm(self.name, biomes, tile_x, tile_y, self.tilesize)
 
-    def pixel_to_tile_coords(self, pixel_x, pixel_y):
+    def _pixel_to_tile_coords(self, pixel_x, pixel_y):
         """
-        get the tilecoord a specific pixel is on
+        get the translate a coordinate on the WHOLE tilemap to coordinate on a SINGLE tile
 
         :param pixel_x:
         :param pixel_y:
@@ -79,6 +96,13 @@ class World(Document):
         tile_y = int(pixel_y / self.tilesize)
 
         return tile_x, tile_y
+
+    def get_voronoi(self, tilemap_x, tilemap_y):
+        p = VoronoiPoint.objects.filter(world=self, tile_coordinate_x=tilemap_x, tile_coordinate_y=tilemap_y).first()
+        if not p:
+            p = VoronoiPoint(self, tilemap_x, tilemap_y)
+            p.save()
+        return p
 
 
 def save_biome_as_ppm(name, vals, tile_x, tile_y, tilesize):
