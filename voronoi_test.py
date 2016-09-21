@@ -2,7 +2,6 @@ import argparse
 import time
 
 from models import db
-from voronoi.voronoiworld import VoronoiWorld
 from models.constants import TILESIZE
 
 

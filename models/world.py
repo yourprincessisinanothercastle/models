@@ -14,8 +14,6 @@ class World(Document):
     heightmap = ReferenceField(Map)
     tempmap = ReferenceField(Map)
 
-    voronoi_points = ListField(ReferenceField(VoronoiPoint))
-
     def __init__(self, name, seed, tilesize, octaves, *args, **kwargs):
         Document.__init__(self, *args, **kwargs)
 
@@ -97,10 +95,12 @@ class World(Document):
 
         return tile_x, tile_y
 
-    def get_voronoi(self, tilemap_x, tilemap_y):
-        p = VoronoiPoint.objects.filter(world=self, tile_coordinate_x=tilemap_x, tile_coordinate_y=tilemap_y).first()
+    def get_voronoi(self, x_on_tilemap, y_on_tilemap):
+        #print('searching in %s for %s %s' % (self.name, x_on_tilemap, y_on_tilemap))
+        p = VoronoiPoint.objects.filter(world=self, x_on_tilemap=x_on_tilemap, y_on_tilemap=y_on_tilemap).first()
         if not p:
-            p = VoronoiPoint(self, tilemap_x, tilemap_y)
+            #print('point not found, creating new...')
+            p = VoronoiPoint(self, x_on_tilemap, y_on_tilemap)
             p.save()
         return p
 
