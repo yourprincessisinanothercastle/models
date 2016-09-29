@@ -1,6 +1,6 @@
 from mongoengine import *
-
+from config import config
 
 db = connect(
-    host='mongodb://localhost:27017/worldmap'
+    host=config['mongodb']
 )

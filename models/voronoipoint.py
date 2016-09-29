@@ -6,12 +6,13 @@ import json
 import random
 import time
 
+
 class VoronoiPoint(Document):
     world = ReferenceField('World', unique_with=['x_on_tilemap', 'y_on_tilemap'], required=True)
     x_on_tilemap = IntField(required=True)
     y_on_tilemap = IntField(required=True)
 
-    _shape = ListField(FloatField())
+    _shape = ListField(ListField(FloatField()))
     _neighbors = ListField(ReferenceField('VoronoiPoint'))
     _part_of_biome = ListField(ReferenceField('VoronoiPoint'))
 
@@ -21,26 +22,25 @@ class VoronoiPoint(Document):
         self.y_on_tilemap = y_on_tilemap
         self.world = world
 
-
     @property
     def voronoi_coord(self):
-        return self._get_coord_on_voronoi(self.x_on_tilemap, self.x_on_tilemap)
+        return self._get_coord_on_voronoi(self.x_on_tilemap, self.y_on_tilemap)
 
     @property
     def neighbors(self):
         t_before = time.time()
-        n = self._get_neighbors(self.x_on_tilemap, self.x_on_tilemap)
+        n = self._get_neighbors(self.x_on_tilemap, self.y_on_tilemap)
         t_after = time.time()
-        print('took %s' % (t_after - t_before))
+        # print('took %s' % (t_after - t_before))
         return n
 
     @property
     def shape(self):
-        return self._get_shape(self.x_on_tilemap, self.x_on_tilemap)
+        return self._get_shape(self.x_on_tilemap, self.y_on_tilemap)
 
     @property
     def shape_size(self):
-        return self._get_shapesize(self.x_on_tilemap, self.x_on_tilemap)
+        return self._get_shapesize(self.x_on_tilemap, self.y_on_tilemap)
 
     @property
     def points_in_biome(self):
@@ -48,7 +48,7 @@ class VoronoiPoint(Document):
 
     @property
     def biome(self):
-        return self.world.get_biome(self.x_on_tilemap, self.x_on_tilemap)
+        return self.world.get_biome(self.x_on_tilemap, self.y_on_tilemap)
 
     def _get_points_in_biome(self):
         if self._part_of_biome:
@@ -67,7 +67,7 @@ class VoronoiPoint(Document):
             # check until nothing to check
             p = points_to_check.pop()
             print('checking point %s, %s' % (p.x_on_tilemap, p.y_on_tilemap))
-            #p = self.world.get_voronoi(p[0], p[1])
+            # p = self.world.get_voronoi(p[0], p[1])
             points_checked.add(p)
             if p.biome == self.biome:
                 # if this field has the same biome, add to our connected biomes
@@ -77,6 +77,7 @@ class VoronoiPoint(Document):
                     if neighbor not in points_checked:
                         points_to_check.add(neighbor)
         self._part_of_biome = list(connected_same_biome)
+        self._part_of_biome.append(self)
         self.save()
         return self._part_of_biome
 
@@ -119,14 +120,26 @@ class VoronoiPoint(Document):
         """
         factor = 20
         r = random.Random(self.world.seed + 10 * x_on_tilemap + y_on_tilemap)
-        x = x_on_tilemap * factor + r.randint(0, factor)
-        if y_on_tilemap % 1 == 0:
-            y = y_on_tilemap * factor + r.randint(0, factor)
+        if x_on_tilemap >= 0:
+            x = x_on_tilemap * factor + r.randint(0, factor)
         else:
-            y = y_on_tilemap * factor + factor / 2 + r.randint(0, factor)
+            x = x_on_tilemap * factor - r.randint(0, factor)
+        if y_on_tilemap >= 0:
+            # print('> 0')
+            if y_on_tilemap % 1 == 0:
+                y = y_on_tilemap * factor + r.randint(0, factor)
+            else:
+                y = y_on_tilemap * factor + (factor / 2) + r.randint(0, factor)
+        else:
+            # print('< 0')
+            if y_on_tilemap % 1 == 0:
+                y = y_on_tilemap * factor - r.randint(0, factor)
+            else:
+                y = y_on_tilemap * factor - (factor / 2) - r.randint(0, factor)
         return x, y
 
     def _get_shape(self, x_on_tilemap, y_on_tilemap):
+        print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
         if self._shape:
             return self._shape
         else:
@@ -152,6 +165,7 @@ class VoronoiPoint(Document):
             # the points which define the region are listes in regions, but the coords are in verticies
             polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
             self._shape = polygon
+            print(self._shape)
             self.save()
         return self._shape
 
@@ -188,6 +202,7 @@ class VoronoiPoint(Document):
                             neighbor_indicies.add(element)
 
             self._neighbors = [self.world.get_voronoi(*coords_on_tilemap[n]) for n in neighbor_indicies]
+            print(self._neighbors)
             self.save()
         return self._neighbors
 
@@ -287,7 +302,6 @@ class VoronoiPoint(Document):
                     self._get_coord_on_voronoi(
                         (tile_x * s) + x, (tile_y * s) + y))
 
-
         print('plotting...')
         coords = np.array(coords)
         delaunay = Delaunay(coords)
@@ -295,6 +309,7 @@ class VoronoiPoint(Document):
         delaunay_plot_2d(delaunay)
 
         plt.savefig('%s_delaunay_%s_%s.png' % (self.world.name, tile_x, tile_y))
+
 
 def get_point(world, x_on_tilemap, y_on_tilemap):
     return VoronoiPoint.objects.filter(world=world, x_on_tilemap=x_on_tilemap, y_on_tilemap=y_on_tilemap).first()
