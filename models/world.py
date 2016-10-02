@@ -5,6 +5,13 @@ from models.map import Map
 from models.voronoipoint import VoronoiPoint
 
 
+def get_world(name, seed, tilesize, octaves, *args, **kwargs):
+    w = World.objects.filter(name=name)
+    if not w:
+        w = World(name, seed, tilesize, octaves, *args, **kwargs).save()
+    return w
+
+
 class World(Document):
     name = StringField(required=True, unique=True)
     seed = IntField()
@@ -96,10 +103,10 @@ class World(Document):
         return tile_x, tile_y
 
     def get_voronoi(self, x_on_tilemap, y_on_tilemap):
-        #print('searching in %s for %s %s' % (self.name, x_on_tilemap, y_on_tilemap))
+        # print('searching in %s for %s %s' % (self.name, x_on_tilemap, y_on_tilemap))
         p = VoronoiPoint.objects.filter(world=self, x_on_tilemap=x_on_tilemap, y_on_tilemap=y_on_tilemap).first()
         if not p:
-            #print('point not found, creating new...')
+            # print('point not found, creating new...')
             p = VoronoiPoint(self, x_on_tilemap, y_on_tilemap)
             p.save()
         return p

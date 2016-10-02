@@ -21,7 +21,6 @@ class TestWorldmap(unittest.TestCase):
         except Exception as e:
             print('couldnt delete db at startup: %s' % e)
 
-
         # -25432, 63113 with seed 34137
         # 45766, -58087 with seed -14045 # get neighbors fail
 
@@ -61,6 +60,23 @@ class TestWorldmap(unittest.TestCase):
     def test_get_shape(self):
         self.assertGreaterEqual(len(self.v.shape), 3)  # at least 3 corners
 
+    def test_get_shape2(self):
+        print('\n\n')
+        print(self.v.shape)
+        print('\n\n')
+        # print(self.v._get_shape1(self.rand_x, self.rand_y))
+        # print('\n\n')
+        print(measure_time(self.v._get_shape2, self.rand_x, self.rand_y))
+        print('\n\n')
+        print(measure_time(self.v._get_shape3, self.rand_x, self.rand_y))
+        print('\n\n')
+        print(measure_time(self.v._get_shape4, self.rand_x, self.rand_y))
+        print('\n\n')
+        print(measure_time(self.v._get_shape5, self.rand_x, self.rand_y))
+        print('\n\n')
+        print('%s/%s' % (len(self.v.shape), len(self.v._get_shape2(self.rand_x, self.rand_y))))
+        # self.assertTrue(self.v.shape == self.v._get_shape2(self.rand_x, self.rand_y))  # at least 3 corners
+
     def test_shapesize(self):
         self.assertGreater(self.v.shape_size, 0)
 
@@ -70,3 +86,21 @@ class TestWorldmap(unittest.TestCase):
     def test_points_in_biome(self):
         print('biome fields: %s (%s)' % (len(self.v.points_in_biome), self.v.biome))
         self.assertGreater(len(self.v.points_in_biome), 0)
+
+    def test_neighbors_shapes(self):
+        """
+        neighbors shapes should have two points of the shape in common
+        :return:
+        """
+        n = self.v.neighbors[0]
+        intersect = set.intersection(set(self.v.shape), set(n.shape))
+        self.assertTrue(len(intersect), 2)
+
+
+def measure_time(function, *args, **kwargs):
+    import time
+    before = time.time()
+    r = function(*args, **kwargs)
+    after = time.time()
+    print('took %ss' % (after - before))
+    return r

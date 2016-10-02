@@ -1,7 +1,8 @@
 from mongoengine import StringField, Document, IntField, ReferenceField, ListField, FloatField
 
 import numpy as np
-from scipy.spatial import Delaunay, Voronoi
+from scipy.spatial import Delaunay, Voronoi, voronoi_plot_2d
+import matplotlib.pyplot as plt
 import json
 import random
 import time
@@ -28,9 +29,9 @@ class VoronoiPoint(Document):
 
     @property
     def neighbors(self):
-        t_before = time.time()
+        # t_before = time.time()
         n = self._get_neighbors(self.x_on_tilemap, self.y_on_tilemap)
-        t_after = time.time()
+        # t_after = time.time()
         # print('took %s' % (t_after - t_before))
         return n
 
@@ -57,7 +58,7 @@ class VoronoiPoint(Document):
         points_to_check = set(list(self.neighbors))
         points_checked = set()
         connected_same_biome = set()
-        print(points_to_check)
+        #print(points_to_check)
 
         while points_to_check:
             if len(points_to_check) > 100:
@@ -66,7 +67,7 @@ class VoronoiPoint(Document):
 
             # check until nothing to check
             p = points_to_check.pop()
-            print('checking point %s, %s' % (p.x_on_tilemap, p.y_on_tilemap))
+            #print('checking point %s, %s' % (p.x_on_tilemap, p.y_on_tilemap))
             # p = self.world.get_voronoi(p[0], p[1])
             points_checked.add(p)
             if p.biome == self.biome:
@@ -138,8 +139,222 @@ class VoronoiPoint(Document):
                 y = y_on_tilemap * factor - (factor / 2) - r.randint(0, factor)
         return x, y
 
+
+    def _get_shape1(self, x_on_tilemap, y_on_tilemap):
+        #print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
+        #if self._shape:
+        #    return self._shape
+        #else:
+        # coords_on_tilemap = self._get_rows_around(x_on_tilemap, y_on_tilemap)
+        # coords = []
+        # for c in coords_on_tilemap:
+        #     coords.append(self._get_coord_on_voronoi(*c))
+
+        coords = set()
+        for n in self.neighbors:
+            coords.add(n.voronoi_coord)
+        coords.add(self.voronoi_coord)
+
+        # create the voronoi diagram
+
+        coords = np.array(list(coords), dtype=(float, 2))
+        vor = Voronoi(coords)
+
+        # find the index of our coords in the points array
+        index = self._find_in_array(self._get_coord_on_voronoi(x_on_tilemap, y_on_tilemap), array=vor.points)
+
+        # f = np.where(vor.points == (self.get_coord_on_voronoi(x_on_tilemap, y_on_tilemap)))
+        # print(f)
+
+        # get the corresponding region for our point
+        region_nr = vor.point_region[index]
+
+        # the points which define the region are listes in regions, but the coords are in verticies
+        polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
+        self._shape = polygon
+        #print(self._shape)
+        #self.save()
+        return self._shape
+
+    def _get_shape2(self, x_on_tilemap, y_on_tilemap):
+        #print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
+        #if self._shape:
+        #    return self._shape
+        #else:
+        # coords_on_tilemap = self._get_rows_around(x_on_tilemap, y_on_tilemap)
+        # coords = []
+        # for c in coords_on_tilemap:
+        #     coords.append(self._get_coord_on_voronoi(*c))
+
+        coords = set()
+        for n in self.neighbors:
+            coords.add(n.voronoi_coord)
+            for n2 in n.neighbors:
+                coords.add(n2.voronoi_coord)
+        coords.add(self.voronoi_coord)
+
+        # create the voronoi diagram
+
+        coords = np.array(list(coords), dtype=(float, 2))
+        vor = Voronoi(coords)
+        #voronoi_plot_2d(vor)
+        #plt.show()
+
+        # find the index of our coords in the points array
+        index = self._find_in_array(self._get_coord_on_voronoi(x_on_tilemap, y_on_tilemap), array=vor.points)
+
+        # f = np.where(vor.points == (self.get_coord_on_voronoi(x_on_tilemap, y_on_tilemap)))
+        # print(f)
+
+        # get the corresponding region for our point
+        region_nr = vor.point_region[index]
+
+        # the points which define the region are listes in regions, but the coords are in verticies
+        polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
+        self._shape = polygon
+        #print(self._shape)
+        #self.save()
+        return self._shape
+
+    def _get_shape3(self, x_on_tilemap, y_on_tilemap):
+        #print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
+        #if self._shape:
+        #    return self._shape
+        #else:
+        # coords_on_tilemap = self._get_rows_around(x_on_tilemap, y_on_tilemap)
+        # coords = []
+        # for c in coords_on_tilemap:
+        #     coords.append(self._get_coord_on_voronoi(*c))
+
+        coords = set()
+        for n in self.neighbors:
+            coords.add(n.voronoi_coord)
+            for n2 in n.neighbors:
+                coords.add(n2.voronoi_coord)
+                for n3 in n2.neighbors:
+                    coords.add(n3.voronoi_coord)
+        coords.add(self.voronoi_coord)
+        # print(len(coords))
+
+        # create the voronoi diagram
+
+        coords = np.array(list(coords), dtype=(float, 2))
+        vor = Voronoi(coords)
+        #voronoi_plot_2d(vor)
+        #plt.show()
+
+        # find the index of our coords in the points array
+        index = self._find_in_array(self._get_coord_on_voronoi(x_on_tilemap, y_on_tilemap), array=vor.points)
+
+        # f = np.where(vor.points == (self.get_coord_on_voronoi(x_on_tilemap, y_on_tilemap)))
+        # print(f)
+
+        # get the corresponding region for our point
+        region_nr = vor.point_region[index]
+
+        # the points which define the region are listes in regions, but the coords are in verticies
+        polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
+        self._shape = polygon
+        #print(self._shape)
+        #self.save()
+        return self._shape
+
+    def _get_shape4(self, x_on_tilemap, y_on_tilemap):
+        #print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
+        #if self._shape:
+        #    return self._shape
+        #else:
+        # coords_on_tilemap = self._get_rows_around(x_on_tilemap, y_on_tilemap)
+        # coords = []
+        # for c in coords_on_tilemap:
+        #     coords.append(self._get_coord_on_voronoi(*c))
+
+        coords = set()
+        for n in self.neighbors:
+            coords.add(n.voronoi_coord)
+            for n2 in n.neighbors:
+                coords.add(n2.voronoi_coord)
+                for n3 in n2.neighbors:
+                    coords.add(n3.voronoi_coord)
+                    for n4 in n3.neighbors:
+                        coords.add(n4.voronoi_coord)
+        coords.add(self.voronoi_coord)
+        print(len(coords))
+
+
+        # create the voronoi diagram
+
+        coords = np.array(list(coords), dtype=(float, 2))
+        vor = Voronoi(coords)
+        #voronoi_plot_2d(vor)
+        #plt.show()
+
+        # find the index of our coords in the points array
+        index = self._find_in_array(self._get_coord_on_voronoi(x_on_tilemap, y_on_tilemap), array=vor.points)
+
+        # f = np.where(vor.points == (self.get_coord_on_voronoi(x_on_tilemap, y_on_tilemap)))
+        # print(f)
+
+        # get the corresponding region for our point
+        region_nr = vor.point_region[index]
+
+        # the points which define the region are listes in regions, but the coords are in verticies
+        polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
+        self._shape = polygon
+        #print(self._shape)
+        #self.save()
+        return self._shape
+
+    def _get_shape5(self, x_on_tilemap, y_on_tilemap):
+        #print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
+        #if self._shape:
+        #    return self._shape
+        #else:
+        # coords_on_tilemap = self._get_rows_around(x_on_tilemap, y_on_tilemap)
+        # coords = []
+        # for c in coords_on_tilemap:
+        #     coords.append(self._get_coord_on_voronoi(*c))
+
+        coords = set()
+        for n in self.neighbors:
+            coords.add(n.voronoi_coord)
+            for n2 in n.neighbors:
+                coords.add(n2.voronoi_coord)
+                for n3 in n2.neighbors:
+                    coords.add(n3.voronoi_coord)
+                    for n4 in n3.neighbors:
+                        coords.add(n4.voronoi_coord)
+                        for n5 in n4.neighbors:
+                            coords.add(n5.voronoi_coord)
+        coords.add(self.voronoi_coord)
+        print(len(coords))
+
+
+        # create the voronoi diagram
+
+        coords = np.array(list(coords), dtype=(float, 2))
+        vor = Voronoi(coords)
+        #voronoi_plot_2d(vor)
+        #plt.show()
+
+        # find the index of our coords in the points array
+        index = self._find_in_array(self._get_coord_on_voronoi(x_on_tilemap, y_on_tilemap), array=vor.points)
+
+        # f = np.where(vor.points == (self.get_coord_on_voronoi(x_on_tilemap, y_on_tilemap)))
+        # print(f)
+
+        # get the corresponding region for our point
+        region_nr = vor.point_region[index]
+
+        # the points which define the region are listes in regions, but the coords are in verticies
+        polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
+        self._shape = polygon
+        #print(self._shape)
+        #self.save()
+        return self._shape
+
     def _get_shape(self, x_on_tilemap, y_on_tilemap):
-        print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
+        #print('getting shape for %s %s' % (x_on_tilemap, y_on_tilemap))
         if self._shape:
             return self._shape
         else:
@@ -165,8 +380,8 @@ class VoronoiPoint(Document):
             # the points which define the region are listes in regions, but the coords are in verticies
             polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
             self._shape = polygon
-            print(self._shape)
-            self.save()
+            #print(self._shape)
+            #self.save()
         return self._shape
 
     def _get_neighbors(self, x_on_tilemap, y_on_tilemap):
@@ -202,8 +417,8 @@ class VoronoiPoint(Document):
                             neighbor_indicies.add(element)
 
             self._neighbors = [self.world.get_voronoi(*coords_on_tilemap[n]) for n in neighbor_indicies]
-            print(self._neighbors)
-            self.save()
+            #print(self._neighbors)
+            #self.save()
         return self._neighbors
 
     def get_point_data(self, x, y):
