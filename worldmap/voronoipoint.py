@@ -10,7 +10,7 @@ import time
 from collections import OrderedDict
 
 cache = OrderedDict()
-cachesize = 1000
+cachesize = 10000
 
 def get_voronoipoint(world, x_on_tilemap, y_on_tilemap):
     # print('searching in %s for %s %s' % (self.name, x_on_tilemap, y_on_tilemap))
