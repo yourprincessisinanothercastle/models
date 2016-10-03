@@ -74,6 +74,14 @@ class VoronoiPoint(Document):
     def biome(self):
         return self.world.get_biome(self.x_on_tilemap, self.y_on_tilemap)
 
+    @property
+    def height(self):
+        return self.world.get_height(self.x_on_tilemap, self.y_on_tilemap),
+
+    @property
+    def temperature(self):
+        return self.world.get_temperature(self.x_on_tilemap, self.y_on_tilemap),
+
     def _get_points_in_biome(self):
         if self._part_of_biome:
             return self._part_of_biome

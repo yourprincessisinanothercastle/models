@@ -6,6 +6,7 @@ import random
 from .constants import BASE_FREQUENCE
 
 
+
 class Tile(Document):
     tilesize = IntField()
     data = ListField(IntField(), default=list)
@@ -15,16 +16,6 @@ class Tile(Document):
     steps = IntField()
     x = IntField()
     y = IntField()
-
-    meta = {
-        'indexes': [
-            {
-                'fields': ['-data', 'name', 'x', 'y'],
-                'unique': False,
-                'sparse': True,
-                'types': False},
-        ],
-    }
 
     def __init__(self, name, seed, tilesize, octaves, steps, x, y, *args, **kwargs):
         """
@@ -45,6 +36,12 @@ class Tile(Document):
 
         self.r = random.Random(self.seed)
 
+        # shuffle the permutation list
+        self.n = SimplexNoise()
+        perm_list = list(self.n.permutation)
+        self.r.shuffle(perm_list)
+        self.n.permutation = tuple(perm_list)
+
         self.freq = BASE_FREQUENCE * self.octaves  # size of the blobs
 
         self.x = x
@@ -58,17 +55,10 @@ class Tile(Document):
         tile_x = self.x
         tile_y = self.y
 
-        n = SimplexNoise()
-
-        # shuffle the permutation list
-        perm_list = list(n.permutation)
-        self.r.shuffle(perm_list)
-        n.permutation = tuple(perm_list)
-
         vals = []
         for y in range(self.tilesize):
             for x in range(self.tilesize):
-                value = n.noise2((x + self.tilesize * tile_x) / self.freq, (y + self.tilesize * tile_y) / self.freq)
+                value = self.n.noise2((x + self.tilesize * tile_x) / self.freq, (y + self.tilesize * tile_y) / self.freq)
                 # print('val: %s' % value)
                 vals.append(int(value * (self.steps / 2) + (
                     self.steps / 2)))  # scale up & shift negative values above zero and append

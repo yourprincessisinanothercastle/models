@@ -3,6 +3,8 @@ from mongoengine import StringField, Document, IntField
 from worldmap.tile import Tile
 from collections import OrderedDict
 
+cache = OrderedDict()
+cachesize = 10000
 
 class Map(Document):
     name = StringField(required=True, unique=True)
@@ -31,14 +33,14 @@ class Map(Document):
         :return:
         """
         # check if its cached
-        tile = self.tilecache.get((tile_x, tile_y), False)
+        tile = self.tilecache.get((self.name, tile_x, tile_y), False)
         if tile:
             return tile
 
         tile = Tile.objects.filter(name=self.name, x=tile_x, y=tile_y).first()
         if not tile:
             tile = self._make_tile(tile_x, tile_y)
-        self.tilecache[(tile_x, tile_y)] = tile
+        self.tilecache[(self.name, tile_x, tile_y)] = tile
         while len(self.tilecache) > self.cachesize:
             self.tilecache.popitem(last=False)
         return tile
