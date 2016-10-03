@@ -7,11 +7,34 @@ import json
 import random
 import time
 
+from collections import OrderedDict
+
+cache = OrderedDict()
+cachesize = 1000
+
+def get_voronoipoint(world, x_on_tilemap, y_on_tilemap):
+    # print('searching in %s for %s %s' % (self.name, x_on_tilemap, y_on_tilemap))
+    p = cache.get((world, x_on_tilemap, y_on_tilemap), False)
+    if p:
+        return p
+
+    p = VoronoiPoint.objects.filter(world=world, x_on_tilemap=x_on_tilemap, y_on_tilemap=y_on_tilemap).first()
+    if not p:
+        # print('point not found, creating new...')
+        p = VoronoiPoint(world, x_on_tilemap, y_on_tilemap)
+        p.save()
+    cache[(world, x_on_tilemap, y_on_tilemap)] = p
+    while len(cache) > cachesize:
+        cache.popitem(last=False)
+    return p
+
 
 class VoronoiPoint(Document):
     world = ReferenceField('World', unique_with=['x_on_tilemap', 'y_on_tilemap'], required=True)
     x_on_tilemap = IntField(required=True)
     y_on_tilemap = IntField(required=True)
+
+    cache = OrderedDict
 
     _shape = ListField(ListField(FloatField()))
     _neighbors = ListField(ReferenceField('VoronoiPoint'))

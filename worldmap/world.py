@@ -1,9 +1,8 @@
-from mongoengine import StringField, Document, IntField, ReferenceField, ListField
+from mongoengine import StringField, Document, IntField, ReferenceField, ListField, dereference
 from .constants import COLORS, BIOMES
 import random
 from worldmap.map import Map
-from worldmap.voronoipoint import VoronoiPoint
-
+from worldmap.voronoipoint import VoronoiPoint, get_voronoipoint
 
 def get_world(name, seed, tilesize, octaves, *args, **kwargs):
     w = World.objects.filter(name=name).first()
@@ -103,13 +102,8 @@ class World(Document):
         return tile_x, tile_y
 
     def get_voronoi(self, x_on_tilemap, y_on_tilemap):
-        # print('searching in %s for %s %s' % (self.name, x_on_tilemap, y_on_tilemap))
-        p = VoronoiPoint.objects.filter(world=self, x_on_tilemap=x_on_tilemap, y_on_tilemap=y_on_tilemap).first()
-        if not p:
-            # print('point not found, creating new...')
-            p = VoronoiPoint(self, x_on_tilemap, y_on_tilemap)
-            p.save()
-        return p
+        return get_voronoipoint(self, x_on_tilemap, y_on_tilemap)
+
 
 
 def save_biome_as_ppm(name, vals, tile_x, tile_y, tilesize):
