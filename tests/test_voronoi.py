@@ -1,12 +1,12 @@
 import unittest
 import os
 
-from models import db
+from worldmap import db
 
 mode_before = os.environ.get('WORLDMAP_MODE', None)
 os.environ['WORLDMAP_MODE'] = 'testing'
 import config
-from models.world import World
+from worldmap.world import World
 
 db_name = config.config['mongodb'].split('/')[-1]
 

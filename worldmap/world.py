@@ -1,8 +1,8 @@
 from mongoengine import StringField, Document, IntField, ReferenceField, ListField
 from .constants import COLORS, BIOMES
 import random
-from models.map import Map
-from models.voronoipoint import VoronoiPoint
+from worldmap.map import Map
+from worldmap.voronoipoint import VoronoiPoint
 
 
 def get_world(name, seed, tilesize, octaves, *args, **kwargs):

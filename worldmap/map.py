@@ -1,6 +1,6 @@
 from mongoengine import StringField, Document, IntField
 
-from models.tile import Tile
+from worldmap.tile import Tile
 from collections import OrderedDict
 
 
