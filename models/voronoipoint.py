@@ -381,7 +381,7 @@ class VoronoiPoint(Document):
             polygon = [tuple(vor.vertices[i]) for i in vor.regions[region_nr]]
             self._shape = polygon
             #print(self._shape)
-            #self.save()
+            self.save()
         return self._shape
 
     def _get_neighbors(self, x_on_tilemap, y_on_tilemap):
@@ -418,7 +418,7 @@ class VoronoiPoint(Document):
 
             self._neighbors = [self.world.get_voronoi(*coords_on_tilemap[n]) for n in neighbor_indicies]
             #print(self._neighbors)
-            #self.save()
+            self.save()
         return self._neighbors
 
     def get_point_data(self, x, y):

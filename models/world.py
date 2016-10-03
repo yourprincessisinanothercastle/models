@@ -6,7 +6,7 @@ from models.voronoipoint import VoronoiPoint
 
 
 def get_world(name, seed, tilesize, octaves, *args, **kwargs):
-    w = World.objects.filter(name=name)
+    w = World.objects.filter(name=name).first()
     if not w:
         w = World(name, seed, tilesize, octaves, *args, **kwargs).save()
     return w
