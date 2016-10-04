@@ -60,14 +60,46 @@ class Map(Document):
         :param y:
         :return:
         """
-        tile_x = int(x / self.tilesize)
-        tile_y = int(y / self.tilesize)
+        tile_x = x / (self.tilesize)
+        tile_y = y / (self.tilesize)
 
-        x = x % self.tilesize
-        y = y % self.tilesize
+        x_on_tile = x % self.tilesize
+        y_on_tile = y % self.tilesize
 
-        tile = self.get_tile(tile_x, tile_y)
-        return tile.get_pixel(x, y)
+        neg_x = self.tilesize - (self.tilesize - x_on_tile) -1
+        pos_x = x_on_tile
+
+        neg_y = self.tilesize - (self.tilesize - y_on_tile) -1
+        pos_y = y_on_tile
+
+       # print('getting %s %s' % (x, y))
+
+        if x < 0 and y < 0:
+            x_on_tile = neg_x
+            y_on_tile = neg_y
+        elif x < 0 and y >= 0:
+            x_on_tile = neg_x
+            y_on_tile = pos_y
+        elif x >= 0 and y < 0:
+            x_on_tile = pos_x
+            y_on_tile = neg_y
+        elif x >= 0 and y >= 0:
+            x_on_tile = pos_x
+            y_on_tile = pos_y
+
+        if tile_x < 0:
+            tile_x -= 1
+
+        if tile_y < 0:
+            tile_y -= 1
+
+        #print('pixel %s, %s results in tile %s, %s' % (x, y, tile_x, tile_y))
+
+        tile = self.get_tile(int(tile_x), int(tile_y))
+        try:
+            return tile.get_pixel(x_on_tile, y_on_tile)
+        except Exception as e:
+            print('failed on %s %s' % (x_on_tile, y_on_tile))
 
     def save_as_pgm(self, tile_x, tile_y):
         name = self.name

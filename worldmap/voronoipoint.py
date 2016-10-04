@@ -493,8 +493,8 @@ class VoronoiPoint(Document):
 
         # convert coords to voronoi coords, get height
         s = self.world.tilesize
-        for x in range(s):
-            for y in range(s):
+        for y in range(s):
+            for x in range(s):
                 coords.append(
                     self._get_coord_on_voronoi(
                         (tile_x * s) + x, (tile_y * s) + y))
