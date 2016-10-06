@@ -41,3 +41,6 @@ class TestUser(unittest.TestCase):
         self.assertTrue(u.password_hash != testpassword)
 
         self.assertTrue(u.verify(testpassword))
+
+        self.assertEquals(u.password_rounds, '200000')
+        
