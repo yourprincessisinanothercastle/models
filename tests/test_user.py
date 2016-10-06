@@ -43,4 +43,4 @@ class TestUser(unittest.TestCase):
         self.assertTrue(u.verify(testpassword))
 
         self.assertEquals(u.password_rounds, '200000')
-        
+

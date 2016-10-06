@@ -31,24 +31,24 @@ class User(Document):
         self.name = name
 
         # password format: $pbkdf2-digest$rounds$salt$checksum
-        self.pbkdf2 = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
+        self.password = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
 
 
     @property
     def password_digest(self):
-        return self.pbkdf2.split('$')[1].split('pbkdf2-')[1]
+        return self.password.split('$')[1].split('pbkdf2-')[1]
 
     @property
     def password_rounds(self):
-        return self.pbkdf2.split('$')[2]
+        return self.password.split('$')[2]
 
     @property
     def password_salt(self):
-        return self.pbkdf2.split('$')[3]
+        return self.password.split('$')[3]
 
 
     def verify(self, password):
-        return pbkdf2_sha256.verify(password, self.pbkdf2)
+        return pbkdf2_sha256.verify(password, self.password)
 
     def add_char(self, name):
         if Character.objects.filter(name=name):
