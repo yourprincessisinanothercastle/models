@@ -1,8 +1,8 @@
 from mongoengine import StringField, Document, IntField, ReferenceField, ListField, dereference
 from .constants import COLORS, BIOMES
 import random
-from worldmap.map import Map
-from worldmap.voronoipoint import VoronoiPoint, get_voronoipoint
+from models.worldmap.map import Map
+from models.worldmap.voronoipoint import VoronoiPoint, get_voronoipoint
 
 def get_world(name, seed, tilesize, octaves, *args, **kwargs):
     w = World.objects.filter(name=name).first()
@@ -10,6 +10,8 @@ def get_world(name, seed, tilesize, octaves, *args, **kwargs):
         w = World(name, seed, tilesize, octaves, *args, **kwargs).save()
     return w
 
+def get_worldlist(name, seed, tilesize, octaves, *args, **kwargs):
+    return World.objects
 
 class World(Document):
     name = StringField(required=True, unique=True)

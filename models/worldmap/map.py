@@ -1,6 +1,6 @@
 from mongoengine import StringField, Document, IntField
 
-from worldmap.tile import Tile
+from models.worldmap.tile import Tile
 from collections import OrderedDict
 
 cache = OrderedDict()

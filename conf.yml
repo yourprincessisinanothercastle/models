@@ -1,8 +1,8 @@
 default:
-  mongodb: 'mongodb://localhost:27017/worldmap'
+  mongodb: 'mongodb://localhost:27017/models'
 
 develop:
-  mongodb: 'mongodb://localhost:27017/worldmap'
+  mongodb: 'mongodb://localhost:27017/models'
 
 testing:
   mongodb: 'mongodb://localhost:27017/tests'
