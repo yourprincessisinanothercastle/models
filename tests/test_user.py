@@ -23,6 +23,7 @@ class TestUser(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        print('dropping %s' % db_name)
         db.drop_database(db_name)
         if mode_before:
             os.environ['WORLDMAP_MODE'] = mode_before
@@ -31,14 +32,17 @@ class TestUser(unittest.TestCase):
 
 
     def test_user(self):
-        testusername = 'testuser'
+        testusername = 'testuser2'
         testpassword = '321'
 
         self.assertFalse(get_user(testusername))
 
-        u = create_user(testusername, testpassword)
+        u = create_user(name=testusername, password=testpassword)
+        print(u.password)
+        u = get_user(testusername)
+        print(u.password)
         self.assertTrue(u.name == testusername)
-        self.assertTrue(u.password_hash != testpassword)
+        self.assertTrue(u._password != testpassword)
 
         self.assertTrue(u.verify(testpassword))
 
